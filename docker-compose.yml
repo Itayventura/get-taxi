@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+
+    environment:
+      - TCP_PORTS=5672, 15672
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  discovery:
+    build: discovery/
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://discovery:8761" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    build: config-server/
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/Itayventura/Hello-RabbitMQ-config
+
+    ports:
+      - "8888:8888"
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/consumer/default/amqp" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    restart: on-failure
+    depends_on:
+      - discovery
+
+  consumer:
+    build: consumer/
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_CLOUD_CONFIG_LABEL=amqp
+      - SPRING_CLOUD_CONFIG_DISCOVERY_ENABLED=true
+      - SPRING_CLOUD_LOADBALANCER_RIBBON_ENABLED=false
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8801:8801"
+    restart: on-failure
+    depends_on:
+      - config-server
+      - rabbitmq
+      - discovery
+
+  producer:
+    build: producer/
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_CLOUD_CONFIG_LABEL=amqp
+      - SPRING_CLOUD_CONFIG_DISCOVERY_ENABLED=true
+      - SPRING_CLOUD_LOADBALANCER_RIBBON_ENABLED=false
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8802:8802"
+    restart: on-failure
+    depends_on:
+      - config-server
+      - rabbitmq
+      - discovery
