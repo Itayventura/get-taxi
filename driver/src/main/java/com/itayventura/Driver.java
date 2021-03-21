@@ -1,14 +1,16 @@
 package com.itayventura;
 
-public class Person {
+public class Driver {
     private String firstName;
     private String lastName;
+    private String address;
 
-    public Person(){}
+    public Driver(){}
 
-    public Person(String firstName, String lastName){
+    public Driver(String firstName, String lastName, String address) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.address = address;
     }
 
     public String getFirstName() {
@@ -27,7 +29,11 @@ public class Person {
         this.lastName = lastName;
     }
 
-    @Override public String toString(){
-        return firstName + " " + lastName;
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

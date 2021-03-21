@@ -46,8 +46,8 @@ services:
     depends_on:
       - discovery
 
-  consumer:
-    build: consumer/
+  driver:
+    build: driver/
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
       - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
@@ -63,8 +63,8 @@ services:
       - rabbitmq
       - discovery
 
-  producer:
-    build: producer/
+  customer:
+    build: customer/
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
       - SPRING_CLOUD_CONFIG_URI=http://config-server:8888

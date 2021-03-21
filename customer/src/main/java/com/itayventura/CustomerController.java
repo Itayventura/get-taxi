@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class PersonController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PersonController.class);
+public class CustomerController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomerController.class);
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
@@ -24,15 +24,15 @@ public class PersonController {
     private String exchangeName;
 
 
-    public PersonController(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
+    public CustomerController(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
     }
 
         @PostMapping("/send")
-        public String sendPerson(@RequestBody Person person){
+        public String sendPerson(@RequestBody Customer customer){
             try {
-                String jsonString = objectMapper.writeValueAsString(person);
+                String jsonString = objectMapper.writeValueAsString(customer);
                 rabbitTemplate.convertAndSend(queueName, jsonString);
                 LOGGER.info(" [x] Sent " + jsonString);
                 return "We have sent a message! :" + jsonString;
